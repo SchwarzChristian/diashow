@@ -18,67 +18,11 @@ bool Image::load(string filename) {
   char const *tmp = NULL, *s;
   for (s = filename.c_str(); *s; s++)
     if (*s == '.') tmp = s;
-  ending = toupper(string(tmp));
   if (tmp) {
+    ending = toupper(string(tmp));
     if (ending == ".JPG") return loadJpeg(filename);
-    if (ending == ".BMP") return loadBmp(filename);
   }
   return false;
-}
-
-struct __attribute__((__packed__)) BmpHeader {
-  uint16_t type;
-  uint32_t _unused[2];
-  uint32_t dataOff;
-  uint32_t infoSize;
-  int32_t  width;
-  int32_t  height;
-  uint16_t __unused;
-  uint16_t bpp;
-  uint32_t compression;
-  uint32_t dataSize;
-};
-
-bool Image::loadBmp(string filename) {
-  struct BmpHeader header;
-  
-  FILE    *in = fopen(filename.c_str(), "rb");
-  GLubyte *ptr;
-
-  fread(&header, sizeof(header), 1, in);
-
-  if (header.type != 0x4D42 /* "BM" */) {
-    cout << "not a bitmap (" << filename << ")" << endl;
-    //    return false;
-  }
-
-  _w = header.width;
-  _h = header.height;
-  _ratio = (float)_w / (float)_h;
-
-  if (header.bpp != 24) {
-    cout << "wrong bitcount: " << header.bpp << ", need 24 (" << filename << ")" << endl;
-    //    return false;
-  }
-  if (header.compression != 0) {
-    cout << "can't handle compressed bitmaps (" << filename << ")" << endl;
-    //    return false;
-  }
-
-  if (_data) delete [] _data;
-  fseek(in, header.dataOff, SEEK_SET);
-  ptr = _data = new GLubyte [_w * _h * 3 + 4];
-
-  for (GLuint i = 0; i < _h; i++) {
-    fread(ptr, 1, _w * 3, in);
-    ptr += _w * 3;
-    //fread(ptr, 1, (-_w * 3) % 4, in);
-  }
-
-  fclose(in);
-
-  _filename = filename;
-  return true;
 }
 
 bool Image::loadJpeg(string filename) {

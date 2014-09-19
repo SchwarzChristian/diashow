@@ -16,14 +16,13 @@ private:
   unsigned long _h;
   float         _ratio;
   string        _filename;
-public:
-                Image();
-               ~Image() { delete [] _data; };
-  bool          load(string filename);
   bool          loadJpeg(string filename);
-  bool          loadBmp(string filename);
-  void          draw(int w, int h);
-  string        name() { return _filename; };
+public:
+         Image();
+        ~Image() { delete [] _data; };
+  bool   load(string filename);
+  void   draw(int w, int h);
+  string name() { return _filename; };
 };
 
 #endif

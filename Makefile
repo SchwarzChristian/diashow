@@ -1,5 +1,5 @@
 CC 		= g++
-CFLAGS 		= -Wall -DGL_API_EXPERIMENTAL -g -pg
+CFLAGS 		= -Wall -g -Iinclude
 LIBRARIES 	= -lGL -lGLU -lglut -lpng -lm -ljpeg
 OBJECTS 	= $(patsubst %.cpp, %.o, $(wildcard src/*.cpp))
 BINARY    	= diashow
