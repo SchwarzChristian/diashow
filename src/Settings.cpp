@@ -39,7 +39,6 @@ void Settings::load(string path, Settings* inherit) {
     // got a config file
     int i = 1;
 
-    cout << "reading config: " << path + "/diashow.conf" << endl;
     while (fgets(buf, 1023, f)) {
       key = val = NULL;
       for (c = buf; c[0]; c++) {
@@ -127,8 +126,7 @@ void Settings::load(string path, Settings* inherit) {
       }
       i++;
     }
-    cout << "done." << endl;
-  } else cout << "no config found for " << path << "/, using inherits/defaults" << endl;
+  } DEBUG(else cout << "no config found for " << path << "/, using inherits/defaults" << endl);
   
   // generating playlist
   if (_order == 'l') return;						// nothing to do for playlist mode

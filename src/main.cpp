@@ -8,16 +8,19 @@
 #include <time.h>
 
 // own includes
+#include "macros.hpp"
 #include "Settings.hpp"
 #include "Image.hpp"
 
+#ifdef __DEBUG__
+#include "Memwatch.hpp"
+#endif
 
 #define FPS 30.0
 
-Settings settings;
-Image   *curr, *next;
-float    a = 0.0;
-bool     last = false;
+Settings *settings;
+Image    *curr, *next;
+float     a = 0.0;
 
 namespace font {
   unsigned char def[102][9] = {
@@ -39,6 +42,14 @@ namespace window {
 
 using namespace std;
 
+void quit(int ret) {
+  delete settings;
+  delete curr;
+  delete next;
+  DEBUG(cout << "mem in use: " << __usedMem() << endl);
+  exit(ret);
+}
+
 void reshape(int w, int h) {
   window::w = w;
   window::h = h;
@@ -57,42 +68,46 @@ void handleKeypress(unsigned char key, int x, int y) {
   case key::skip:
     break;
   case key::quit:
-    exit(0);
+    quit(0);
     break;
   }
 }
 
-void update(int c) {
+void loadImage() {
+  static bool last = false;
   string tmp = "";
-  clock_t t;
-  if (c < floor(settings.blendtime() * 1000)) {
+
+  DEBUG(clock_t t = clock());
+
+  if (last) quit(0);
+
+  swap(curr, next);
+  do {
+    tmp = settings->next();
+    if (tmp == "done.") {
+      // no more pictures to load, turn off the lights and go home ;)
+      delete next;
+      next = new Image;
+      last = true;
+      break;
+    }
+  } while (not next->load(tmp));
+  a = 0.0;
+  DEBUG(t = clock() - t;
+	if (tmp != "done.") cout << tmp << " loaded in " << t * 1000 / CLOCKS_PER_SEC << "ms" << endl;
+        cout << "mem in use: " << __usedMem() << endl;
+  );
+}
+
+void update(int c) {
+  if (c < floor(settings->blendtime() * 1000)) {
     // blending
     glutTimerFunc(1000 / FPS, update, c + floor(FPS));
     a = c / 1000.0;
   } else {
     // standing
-    t = clock();
-    if (last) {
-      // played all the nice pictures
-      delete curr;
-      delete next;
-      exit(0);
-    }
-    swap(curr, next);
-    do {
-      tmp = settings.next();
-      if (tmp == "done.") {
-	// no more pictures to load, turn off the lights and go home ;)
-	delete next;
-	next = new Image;
-	last = true;
-	break;
-      }
-    } while (not next->load(tmp));
-    glutTimerFunc(1000 * settings.showtime(), update, 0);
-    a = 0.0;
-    t = clock() - t;
-    cout << tmp << " loaded in " << t * 1000 / CLOCKS_PER_SEC << "ms" << endl;
+    loadImage();
+    glutTimerFunc(1000 * settings->showtime(), update, 0);
   }
 
   glutPostRedisplay();
@@ -140,14 +155,18 @@ int main(int argc, char** argv) {
   glutKeyboardFunc(handleKeypress);
   glutReshapeFunc(reshape);
 
+  settings = new Settings;
+
   curr = new Image;
   next = new Image;
 
-  settings.load(".");
-  while (not next->load(settings.next()));
+  settings->load(".");
+  loadImage();
   
   update(0);
 
   glutMainLoop();
+  // should not be reached
+  quit(0);			// just to be sure
   return 0;
 }

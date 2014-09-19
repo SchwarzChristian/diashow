@@ -7,10 +7,12 @@
 #include <GL/glut.h>
 #include <jpeglib.h>
 
+#include "macros.hpp"
+
 using namespace std;
 
 class Image {
-private:
+protected:
   GLubyte      *_data;
   unsigned long _w;
   unsigned long _h;
@@ -18,8 +20,12 @@ private:
   string        _filename;
   bool          loadJpeg(string filename);
 public:
-         Image();
-        ~Image() { delete [] _data; };
+   Image() {
+     _data = NULL;
+     _filename = "";
+     _w = _h = 1;
+   }
+  ~Image() { delete [] _data; };
   bool   load(string filename);
   void   draw(int w, int h);
   string name() { return _filename; };

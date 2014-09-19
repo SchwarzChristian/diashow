@@ -1,11 +1,5 @@
 #include "Image.hpp"
 
-Image::Image() {
-  _data = NULL;
-  _filename = "";
-  _w = _h = 1;
-}
-
 string toupper(string s) {
   string ret = "";
   for (char const* c = s.c_str(); *c; c++)

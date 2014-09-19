@@ -9,6 +9,8 @@
 
 #include <List.hpp>
 
+#include "macros.hpp"
+
 using namespace std;
 
 class Settings {
@@ -26,11 +28,12 @@ protected:
   string check(string filename);
 
 public:
-         Settings()        { _playlistfile = NULL;  _sub = NULL; }
-        ~Settings()        { if (_playlistfile) fclose(_playlistfile); if (_sub) delete _sub; }
-  void   load(string path) { load(path, NULL); }
-  float  blendtime()       { if (_sub) return _sub->_blending; else return _blending; }
-  float  showtime()        { if (_sub) return _sub->_standing; else return _standing; }
+   Settings() { _playlistfile = NULL;  _sub = NULL; }
+  ~Settings() { if (_playlistfile) fclose(_playlistfile); if (_sub) delete _sub; }
+
+  void   load(string path)   { load(path, NULL); }
+  float  blendtime()         { if (_sub) return _sub->_blending; else return _blending; }
+  float  showtime()          { if (_sub) return _sub->_standing; else return _standing; }
   string next();
 };
 
